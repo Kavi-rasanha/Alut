@@ -1,53 +1,98 @@
-const config = require('../config');
-const { cmd } = require('../command');
-const { ytsearch, ytmp3, ytmp4 } = require('@dark-yasiya/yt-dl.js'); 
+const { cmd } = require("../command");
+const yts = require("yt-search");
+const axios = require("axios");
 
-
-cmd({
-    pattern: "video",
-    alias: ["watch","ytvi"],
+cmd(
+  {
+    pattern: "video5",
     react: "🎥",
-    desc: "Download Youtube video",
+    desc: "Download YouTube Video",
     category: "download",
-    use: '.video2 < Yt url or Name >',
-    filename: __filename
-},
-async(conn, mek, m,{ from, prefix, quoted, q, reply }) => {
-try{
+    filename: __filename,
+  },
+  async (
+    robin,
+    mek,
+    m,
+    { from, quoted, body, isCmd, command, args, q, isGroup, sender, reply }
+  ) => {
+    try {
+      if (!q) return reply("*නමක් එකක් හරි url එකක් හරි දෙන්න.* 😉");
 
-if(!q) return await reply("Please give me Yt url or Name..!")
-	
-const yt = await ytsearch(q);
-if(yt.results.length < 1) return reply("Results is not found..!")
+      // Search for the video
+      const search = await yts(q);
+      const data = search.videos[0];
+      const url = data.url;
 
-let yts = yt.results[0]  
-const ytdl = await ytmp4(yts.url)		
-let ytmsg = `
-🎥 DARKBOT VIDEO DOWNLOADER 🎥
+      // Video metadata description
+      let desc = `╔═══〔 *𓆩𝐊𝐀𝐕𝐈 - 𝐌𝐃𓆪* 〕═══❒
+║╭───────────────◆  
+║│ *❍ᴠɪᴅᴇᴏ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ*
+║╰───────────────◆
+╚══════════════════❒
+╔══════════════════❒
+║ ⿻ *ᴛɪᴛʟᴇ:*  ${yts.title}
+║ ⿻ *ᴅᴜʀᴀᴛɪᴏɴ:*  ${yts.timestamp}
+║ ⿻ *ᴠɪᴇᴡs:*  ${yts.views}
+║ ⿻ *ᴀᴜᴛʜᴏʀ:*  ${yts.author.name}
+║ ⿻ *ʟɪɴᴋ:*  ${yts.url}
+╚══════════════════❒
 
-❀━━━━━━━━━━━━━━━━━━━━━━━━━━❀
-┃
-┃ 📄 *TITLE :* ${yts.title}
-┃
-┃ 🤵 *AUTHOR :* ${yts.author.name}
-┃ 
-┃ ⏳ *RUNTIME :* ${yts.timestamp}
-┃
-┃ 👀 *VIEWS :* ${yts.views}
-┃
-┃ 🖇️ *URL :* ${yts.url}
-┃
-❀━━━━━━━━━━━━━━━━━━━━━━━━━━━❀
+> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*
+`;
 
+      // Send metadata and thumbnail message
+      await robin.sendMessage(
+        from,
+        { image: { url: data.thumbnail }, caption: desc },
+        { quoted: mek }
+      );
 
-> *DARKBOT*
-`
-await conn.sendMessage(from, { image: { url: yts.thumbnail || yts.image || '' }, caption: ytmsg }, { quoted: mek });
-await conn.sendMessage(from, { video: { url: ytdl.download.url }, mimetype: "video/mp4" }, { quoted: mek })
-await conn.sendMessage(from, { document: { url: ytdl.download.url }, mimetype: "video/mp4", fileName: ytdl.result.title + '.mp4', caption: `> *𝗗𝗔𝗥𝗞𝗕𝗢𝗧*` }, { quoted: mek })
+      // Video download function
+      const downloadVideo = async (url, quality) => {
+        const apiUrl = `https://p.oceansaver.in/ajax/download.php?format=${quality}&url=${encodeURIComponent(
+          url
+        )}&api=dfcb6d76f2f6a9894gjkege8a4ab232222`;
+        const response = await axios.get(apiUrl);
 
-} catch (e) {
-console.log(e)
-reply(e)
-}}
-)
+        if (response.data && response.data.success) {
+          const { id, title } = response.data;
+
+          // Wait for download URL generation
+          const progressUrl = `https://p.oceansaver.in/ajax/progress.php?id=${id}`;
+          while (true) {
+            const progress = await axios.get(progressUrl);
+            if (progress.data.success && progress.data.progress === 1000) {
+              const videoBuffer = await axios.get(progress.data.download_url, {
+                responseType: "arraybuffer",
+              });
+              return { buffer: videoBuffer.data, title };
+            }
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          }
+        } else {
+          throw new Error("Failed to fetch video details. 🙁");
+        }
+      };
+
+      // Specify desired quality (default: 720p)
+      const quality = "720";
+
+      // Download and send video
+      const video = await downloadVideo(url, quality);
+      await robin.sendMessage(
+        from,
+        {
+          video: video.buffer,
+          caption: `🎥 *${video.title}*\n\n*ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*`,
+        },
+        { quoted: mek }
+      );
+
+      reply("*Thanks For Using KAVI-MD* 🤍");
+    } catch (e) {
+      console.error(e);
+      reply(`‼️ error: ${e.massage}`);
+    } 
+  }
+);  
