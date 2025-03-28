@@ -211,8 +211,9 @@ _*🌟 Reply with the Number you want to select*_
 > *ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*
 
 `);
-                       
-                        
+await conn.sendMessage(from,{image:{url:config.MENU_IMG},caption:madeMenu},{quoted:mek})
+
+               
                     break;
                     default:
                     
