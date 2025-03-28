@@ -1,53 +1,41 @@
-// YTMP3 DL PLUGIN
-
-const config = require('../config');
+const yts = require('yt-search');
+const ytdl = require('ytdl-core');
 const { cmd } = require('../command');
-const { ytsearch, ytmp3, ytmp4 } = require('@dark-yasiya/yt-dl.js'); // request package.json "@dark-yasiya/yt-dl.js": "latest"
-
 
 cmd({
-    pattern: "song",
-    alias: ["ytmp3","ytsong"],
-    react: "🎶",
-    desc: "Download Youtube song",
-    category: "download",
-    use: '.song < Yt url or Name >',
-    filename: __filename
-},
-async(conn, mek, m,{ from, prefix, quoted, q, reply }) => {
-try{
+  pattern: 'song1',
+  alias: ['ytsearch', 'yts'],
+  desc: 'Search and download YouTube audio by song name.',
+  category: 'utility',
+  use: '.song <song name>',
+  filename: __filename,
+}, async (conn, mek, msg, { from, args, reply }) => {
+  try {
+    const query = args.join(" ");
+    if (!query) {
+      return reply('*සින්දුවේ නමක් දෙන්න 🙃*');
+    }
 
-if(!q) return await reply("Please give me Yt url or Name")
-	
-const yt = await ytsearch(q);
-if(yt.results.length < 1) return reply("Results is not found !")
+    const searchResults = await yts(query);
+    if (!searchResults.videos.length) {
+      return reply('*ප්‍රතිඵලයක් හමු නොවිණි.*');
+    }
 
-let yts = yt.results[0]  
-const ytdl = await ytmp3(yts.url)
-		
-let ytmsg = `🎶 SONG DOWNLOADER 🎶
+    const video = searchResults.videos[0]; // First result
+    const ytUrl = video.url;
+    const title = video.title;
 
+    const audioFormat = ytdl.chooseFormat(await ytdl.getInfo(ytUrl), { quality: 'highestaudio' });
 
-🎵 *TITLE :* ${yts.title}
-🤵 *AUTHOR :* ${yts.author.name}
-⏱ *RUNTIME :* ${yts.timestamp}
-👀 *VIEWS :* ${yts.views}
-🖇️ *URL :* ${yts.url}
-`
-// SEND DETAILS
-await conn.sendMessage(from, { image: { url: yts.thumbnail || yts.image || '' }, caption: `${ytmsg}`}, { quoted: mek });
+    await conn.sendMessage(from, {
+      audio: { url: audioFormat.url },
+      mimetype: 'audio/mp4',
+      ptt: false,
+      caption: `🎵 *Title*: ${title}\n🔗 *URL*: ${ytUrl}\n\n> *Powered by Kavi-MD*`
+    });
 
-// SEND AUDIO TYPE
-await conn.sendMessage(from, { audio: { url: ytdl.download.url }, mimetype: "audio/mpeg" }, { quoted: mek })
-
-// SEND DOC TYPE
-await conn.sendMessage(from, { document: { url: ytdl.download.url }, mimetype: "audio/mpeg", fileName: ytdl.result.title + '.mp3', caption: `${ytdl.result.title}` }, { quoted: mek })
-
-
-} catch (e) {
-console.log(e)
-reply(e)
-}}
-)
-
-// FOLLOW US: https://whatsapp.com/channel/0029VaaPfFK7Noa8nI8zGg27
+  } catch (error) {
+    console.error('Error downloading YouTube song:', error);
+    reply('❌ Unable to find or download the song. Please try again later.');
+  }
+});
