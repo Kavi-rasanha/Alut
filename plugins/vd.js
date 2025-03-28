@@ -12,7 +12,7 @@ cmd({
         try {
             if (!q) return await reply("*Please provide a valid YouTube URL!*");
 
-            const apiUrl = `https://api-dark-shan-yt.koyeb.app/download/ytmp3?url=${encodeURIComponent(q)}&apikey=${apikey}`;
+            const apiUrl = `https://api-dark-shan-yt.koyeb.app/download/ytmp3?url=https://api-dark-shan-yt.koyeb.app/download${encodeURIComponent(q)}&apikey=${apikey&apikey=d74f29643c2499c9`;
             const response = await fetch(apiUrl);
             const data = await response.json();
 
