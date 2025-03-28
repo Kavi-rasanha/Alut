@@ -1,98 +1,59 @@
-const { cmd } = require("../command");
-const yts = require("yt-search");
-const axios = require("axios");
+const config = require('../config');
+const {
+  cmd,
+  commands
+} = require('../command');
+const fetch = require('node-fetch');
 
-cmd(
-  {
-    pattern: "video5",
-    react: "🎥",
-    desc: "Download YouTube Video",
-    category: "download",
-    filename: __filename,
-  },
-  async (
-    robin,
-    mek,
-    m,
-    { from, quoted, body, isCmd, command, args, q, isGroup, sender, reply }
-  ) => {
+cmd({
+  pattern: "v2",
+  category: "downloader",
+  react: "🎥",
+  desc: "Download YouTube audios as MP3",
+  filename: __filename
+},
+async(conn, mek, m, {from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply}) => {
     try {
-      if (!q) return reply("*නමක් එකක් හරි url එකක් හරි දෙන්න.* 😉");
+        if (!q) return await reply('Please provide a YouTube audio URL.');
 
-      // Search for the video
-      const search = await yts(q);
-      const data = search.videos[0];
-      const url = data.url;
+        const url = encodeURIComponent(q);
+        const response = await fetch(`https://dark-shan-yt.koyeb.app/download/ytmp3?url=${url}`);
+        const data = await response.json();
 
-      // Video metadata description
-      let desc = `╔═══〔 *𓆩𝐊𝐀𝐕𝐈 - 𝐌𝐃𓆪* 〕═══❒
-║╭───────────────◆  
-║│ *❍ᴠɪᴅᴇᴏ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ*
-║╰───────────────◆
-╚══════════════════❒
-╔══════════════════❒
-║ ⿻ *ᴛɪᴛʟᴇ:*  ${yts.title}
-║ ⿻ *ᴅᴜʀᴀᴛɪᴏɴ:*  ${yts.timestamp}
-║ ⿻ *ᴠɪᴇᴡs:*  ${yts.views}
-║ ⿻ *ᴀᴜᴛʜᴏʀ:*  ${yts.author.name}
-║ ⿻ *ʟɪɴᴋ:*  ${yts.url}
-╚══════════════════❒
+        if (!data.status) return await reply('Failed to fetch audio details. Please check the URL and try again.');
 
-> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*
-`;
+        const audio = data.data;
+        const message = `
+🎶 𝐘𝐓 𝐒𝐎𝐍𝐆 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 📥
 
-      // Send metadata and thumbnail message
-      await robin.sendMessage(
-        from,
-        { image: { url: data.thumbnail }, caption: desc },
-        { quoted: mek }
-      );
+╭━━━━━━━━━●●►
+┢❑ 𝐓𝐢𝐭𝐥𝐞: ${audio.title}
+┢❑ 𝐅𝐨𝐫𝐦𝐚𝐭: ${audio.format}
+┢❑ 𝐓𝐢𝐦𝐞: ${audio.timestump || 'N/A'}
+┢❑ 𝐔𝐩𝐥𝐨𝐚𝐝𝐞𝐝: ${audio.ago || 'N/A'}
+┢❑ 𝐕𝐢𝐞𝐰𝐬: ${audio.views || 'N/A'}
+┢❑ 𝐋𝐢𝐤𝐞𝐬: ${audio.likes || 'N/A'}
+╰━━━━━━━━●●►
+        `;
 
-      // Video download function
-      const downloadVideo = async (url, quality) => {
-        const apiUrl = `https://p.oceansaver.in/ajax/download.php?format=${quality}&url=${encodeURIComponent(
-          url
-        )}&api=dfcb6d76f2f6a9894gjkege8a4ab232222`;
-        const response = await axios.get(apiUrl);
+       
+        await conn.sendMessage(from, {
+            image: { url: audio.thumbnail },
+            caption: message
+        });
 
-        if (response.data && response.data.success) {
-          const { id, title } = response.data;
+        await conn.sendMessage(from, {
+            document: { url: audio.download },
+            mimetype: 'audio/mp3',
+            fileName: `${audio.title}.mp3`,
+            caption: `your name`
+        });
 
-          // Wait for download URL generation
-          const progressUrl = `https://p.oceansaver.in/ajax/progress.php?id=${id}`;
-          while (true) {
-            const progress = await axios.get(progressUrl);
-            if (progress.data.success && progress.data.progress === 1000) {
-              const videoBuffer = await axios.get(progress.data.download_url, {
-                responseType: "arraybuffer",
-              });
-              return { buffer: videoBuffer.data, title };
-            }
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-          }
-        } else {
-          throw new Error("Failed to fetch video details. 🙁");
-        }
-      };
-
-      // Specify desired quality (default: 720p)
-      const quality = "720";
-
-      // Download and send video
-      const video = await downloadVideo(url, quality);
-      await robin.sendMessage(
-        from,
-        {
-          video: video.buffer,
-          caption: `🎥 *${video.title}*\n\n*ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*`,
-        },
-        { quoted: mek }
-      );
-
-      reply("*Thanks For Using KAVI-MD* 🤍");
+        await conn.sendMessage(from, {
+            react: { text: '✅', key: mek.key }
+        });
     } catch (e) {
-      console.error(e);
-      reply(`‼️ error: ${e.massage}`);
-    } 
-  }
-);  
+        console.error(e);
+        await reply(`📕 An error occurred: ${e.message}`);
+    }
+});
