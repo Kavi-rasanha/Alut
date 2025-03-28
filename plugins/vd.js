@@ -1,59 +1,50 @@
-const config = require('../config');
-const {
-  cmd,
-  commands
-} = require('../command');
-const fetch = require('node-fetch');
-
+const apikey = 'd74f29643c2499c9' // https://api-dark-shan-yt.koyeb.app/signup
 cmd({
-  pattern: "v2",
-  category: "downloader",
-  react: "🎥",
-  desc: "Download YouTube audios as MP3",
-  filename: __filename
+    pattern: "y3",
+    alias: ["mp3"],
+    use: ".ytmp3 <YouTube URL>",
+    react: "🎶",
+    desc: "Download YouTube audio in MP3 format",
+    category: "download",
+    filename: __filename
 },
-async(conn, mek, m, {from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply}) => {
-    try {
-        if (!q) return await reply('Please provide a YouTube audio URL.');
+    async (conn, m, mek, { from, q, reply, prefix, tr }) => {
+        try {
+            if (!q) return await reply("*Please provide a valid YouTube URL!*");
 
-        const url = encodeURIComponent(q);
-        const response = await fetch(`https://dark-shan-yt.koyeb.app/download/ytmp3?url=${url}`);
-        const data = await response.json();
+            const apiUrl = `https://api-dark-shan-yt.koyeb.app/download/ytmp3?url=${encodeURIComponent(q)}&apikey=${apikey}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
 
-        if (!data.status) return await reply('Failed to fetch audio details. Please check the URL and try again.');
+            if (!data.status || !data.data?.result) {
+                return await reply("*Failed to fetch the audio. Please try again!*");
+            }
 
-        const audio = data.data;
-        const message = `
-🎶 𝐘𝐓 𝐒𝐎𝐍𝐆 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 📥
+            const { title, uploader, duration, quality, format, thumbnail, download } = data.data.result;
 
-╭━━━━━━━━━●●►
-┢❑ 𝐓𝐢𝐭𝐥𝐞: ${audio.title}
-┢❑ 𝐅𝐨𝐫𝐦𝐚𝐭: ${audio.format}
-┢❑ 𝐓𝐢𝐦𝐞: ${audio.timestump || 'N/A'}
-┢❑ 𝐔𝐩𝐥𝐨𝐚𝐝𝐞𝐝: ${audio.ago || 'N/A'}
-┢❑ 𝐕𝐢𝐞𝐰𝐬: ${audio.views || 'N/A'}
-┢❑ 𝐋𝐢𝐤𝐞𝐬: ${audio.likes || 'N/A'}
-╰━━━━━━━━●●►
-        `;
+            const caption = `*🎶 YouTube MP3 Downloader 🎶*\n\n`
+                + `> 📃 *Title:* ${title}\n`
+                + `> 🎤 *Uploader:* ${uploader}\n`
+                + `> ⌚ *Duration:* ${duration}\n`
+                + `> 🎧 *Quality:* ${quality}kbps\n`
+                + `> 🔉 *Format* ${format}\n\n`
+                + `_Powered by @darkshanyt1_`;
 
-       
-        await conn.sendMessage(from, {
-            image: { url: audio.thumbnail },
-            caption: message
-        });
+            // Send song details with image
+            await conn.sendMessage(from, {
+                image: { url: thumbnail },
+                caption: caption
+            }, { quoted: mek });
 
-        await conn.sendMessage(from, {
-            document: { url: audio.download },
-            mimetype: 'audio/mp3',
-            fileName: `${audio.title}.mp3`,
-            caption: `your name`
-        });
+            // Send the audio file
+            await conn.sendMessage(from, {
+                audio: { url: download },
+                mimetype: "audio/mpeg",
+                fileName: `${title}.mp3`
+            }, { quoted: mek });
 
-        await conn.sendMessage(from, {
-            react: { text: '✅', key: mek.key }
-        });
-    } catch (e) {
-        console.error(e);
-        await reply(`📕 An error occurred: ${e.message}`);
-    }
-});
+        } catch (e) {
+            console.error(e);
+            await reply("*Error occurred while processing the request!*");
+        }
+    });
