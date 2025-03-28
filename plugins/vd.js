@@ -1,4 +1,5 @@
-const { cmd } = require('../command');
+const config = require('../config');
+const { cmd, commands } = require('../command');
 const apikey = 'd74f29643c2499c9' // https://api-dark-shan-yt.koyeb.app/signup
 cmd({
     pattern: "y3",
