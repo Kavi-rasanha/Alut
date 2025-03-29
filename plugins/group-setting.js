@@ -222,7 +222,7 @@ const groupAdmins = participants.filter(p => p.admin);
 const listAdmin = groupAdmins.map((v, i) => `${i + 1}. @${v.id.split('@')[0]}`).join('\n');
 const owner = metadata.owner
 
-const gdata = `*「 Group Information 」*\n
+const gdata = `*「 KAVI-MD Group Information 」*\n
 \t*${metadata.subject}*
 
 *Group Jid* - ${metadata.id}
@@ -274,7 +274,7 @@ async (conn, mek, m, { from, participants, reply, isGroup, senderNumber, groupAd
         let message = (m.body || "").slice((prefix + command).length).trim();
         if (!message) message = "ATTENTION EVERYONE!"; // Default message
 
-        let teks = `*▢ GROUP : ${groupName}*\n*▢ MEMBERS : ${totalMembers}*\n*▢ MESSAGE : ${message}*\n\n┌───❒ *MENTIONS*\n`;
+        let teks = `*▢ GROUP : ${groupName}*\n*▢ MEMBERS : ${totalMembers}*\n*▢ MESSAGE : ${message}*\n\n┌───❒ *KAVI-MD MENTIONS*\n`;
 
         for (let mem of participants) {
             if (!mem.id) continue; // Prevent undefined errors
