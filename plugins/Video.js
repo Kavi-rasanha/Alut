@@ -5,8 +5,8 @@ const { ytsearch, ytmp3, ytmp4 } = require('@dark-yasiya/yt-dl.js');
 // video
 
 cmd({ 
-    pattern: "mp4", 
-    alias: ["video", "ytv"], 
+    pattern: "video", 
+    alias: ["mp4", "ytv"], 
     react: "🎥", 
     desc: "Download Youtube song", 
     category: "download", 
@@ -29,7 +29,7 @@ cmd({
             return reply("Failed to fetch the video. Please try again later.");
         }
         
-        let ytmsg = `╔═══〔 *𓆩Your BOTNAME ᪳𓆪* 〕═══❒
+        let ytmsg = `╔═══〔 *𓆩𝐊𝐀𝐕𝐈 - 𝐌𝐃𓆪* 〕═══❒
 ║╭───────────────◆  
 ║│ *❍ ᴠɪᴅᴇᴏ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ*
 ║╰───────────────◆
@@ -41,7 +41,7 @@ cmd({
 ║ ⿻ *ᴀᴜᴛʜᴏʀ:*  ${yts.author.name}
 ║ ⿻ *ʟɪɴᴋ:*  ${yts.url}
 ╚══════════════════❒
-> *Powered by yourname*`;
+> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*`;
 
         // Send video details
         await conn.sendMessage(from, { image: { url: data.result.thumbnail || '' }, caption: ytmsg }, { quoted: mek });
@@ -54,7 +54,7 @@ cmd({
             document: { url: data.result.download_url }, 
             mimetype: "video/mp4", 
             fileName: `${data.result.title}.mp4`, 
-            caption: `*${yts.title}*\n> *© Powered by your name 🎐*`
+            caption: `*${yts.title}*\n> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*`
         }, { quoted: mek });
 
     } catch (e) {
@@ -66,8 +66,8 @@ cmd({
 // play
 
 cmd({ 
-     pattern: "mp3", 
-     alias: ["yta", "play"], 
+     pattern: "song", 
+     alias: ["mp3", "play"], 
      react: "🎶", 
      desc: "Download Youtube song",
      category: "download", 
@@ -90,9 +90,9 @@ const yt = await ytsearch(q);
         return reply("Failed to fetch the audio. Please try again later.");
     }
     
-    let ytmsg = `╔═══〔 *𓆩Your Botname𓆪* 〕═══❒
+    let ytmsg = `╔═══〔 *𓆩𝐊𝐀𝐕𝐈 - 𝐌𝐃𓆪* 〕═══❒
 ║╭───────────────◆  
-║│ **❍ auᴅᴇᴏ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ**
+║│ *❍ꜱᴏɴɢ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ
 ║╰───────────────◆
 ╚══════════════════❒
 ╔══════════════════❒
@@ -102,7 +102,7 @@ const yt = await ytsearch(q);
 ║ ⿻ *ᴀᴜᴛʜᴏʀ:*  ${yts.author.name}
 ║ ⿻ *ʟɪɴᴋ:*  ${yts.url}
 ╚══════════════════❒
-Powered by your name 🍉*`;
+> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*`;
 
 
 
@@ -117,7 +117,7 @@ Powered by your name 🍉*`;
         document: { url: data.result.downloadUrl }, 
         mimetype: "audio/mpeg", 
         fileName: `${data.result.title}.mp3`, 
-        caption: `> *© Powered by your name 🎐*`
+        caption: `> *ᴘᴏᴡᴇʀᴇᴅ ʙʏ:- 𝙺𝙰𝚅𝙸𝙳𝚄 𝚁𝙰𝚂𝙰𝙽𝙶𝙰 🌟*`
     }, { quoted: mek });
 
 } catch (e) {
