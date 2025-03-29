@@ -6,9 +6,9 @@ const config = require('../config'); // Ensure your API key is in config
 
 // Command to fetch movie details
 cmd({
-    pattern: "movieinfo",
+    pattern: "mvinfo",
     desc: "Fetch detailed information about a movie.",
-    category: "utility",
+    category: "download",
     react: "🎞️",
     filename: __filename
 }, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
