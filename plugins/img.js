@@ -6,7 +6,7 @@ const {
 } = require('../command');
 const axios = require('axios');
 cmd({
-  'pattern': "img",
+  'pattern': "img2",
   'alias': ["image", "pinterest", "pinimg"],
   'react': '🖼️',
   'desc': "Search and download images from Pinterest using keywords.",
@@ -61,7 +61,7 @@ cmd({
     pattern: "img",
     desc: "Search and send images from Google.",
     react: "🖼️",
-    category: "media",
+    category: "convert",
     filename: __filename
 },
 async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
