@@ -15,7 +15,7 @@ const api_key = `Manul-Ofc-Sl-Sub-Key-9`;
 cmd({
     pattern: "movie",
     alias: ["slsub", "mv"],
-    react: '⛓️‍💥',
+    react: '🎬',
     category: "download",
     desc: "Search movies on sinhalasub and get download links",
     filename: __filename
@@ -102,8 +102,8 @@ cmd({
                                     url: directDownloadUrl
                                 },
                                 mimetype: 'video/mp4',
-                                fileName: `${movieDetails.title} - ${selectedLink.quality}.mp4`,
-                                caption: `*${movieDetails.title}*\nQuality: *${selectedLink.quality}*\n\n> 𝐌𝐚𝐝𝐞 𝐛𝐲 *𝐊𝐀𝐕𝐈𝐃𝐔 𝐑𝐀𝐒𝐀𝐍𝐆𝐀*  🎗️`
+                                fileName: `🎬𝗞𝗔𝗩𝗜-𝗠𝗗🎬${movieDetails.title} - ${selectedLink.quality}.mp4`,
+                                caption: `*~✨𝗗𝗞 𝗠𝗢𝗩𝗜𝗘✨~*\n\n*~🔱𝗡𝗔𝗠𝗘:-~${movieDetails.title}*\n\n*~🔱𝗤𝗨𝗔𝗟𝗬𝗧𝗬:-~${selectedLink.quality}*\n> *Download Withing 14 Days.❗*\n> *Enjoy & Stay With Us✨*\n\n𝐌𝐚𝐝𝐞 𝐛𝐲 *𝐊𝐀𝐕𝐈𝐃𝐔 𝐑𝐀𝐒𝐀𝐍𝐆𝐀*  🌟`
                             }, { quoted: pdReply });
 
                     await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
